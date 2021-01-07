@@ -83,6 +83,9 @@ class AlarmUtil {
         float number = (float) volume;
 
         MediaPlayer mediaPlayer = audioInterface.getSingletonMedia(name, names);
+        if (mediaPlayer == null) {
+            return;
+        }
         mediaPlayer.setLooping(shouldLoop);
         mediaPlayer.setVolume(number, number);
         mediaPlayer.start();

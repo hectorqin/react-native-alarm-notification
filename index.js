@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 const { RNAlarmNotification } = NativeModules;
 const ReactNativeAN = {};
@@ -18,6 +18,13 @@ const parseDateString = (string) => {
 
 	return new Date(year, month - 1, day, hours, minutes, seconds);
 };
+
+const ifUndefined = (value, defaultValue) => {
+	if (typeof value !== 'undefined') {
+		return value;
+	}
+	return defaultValue
+}
 
 ReactNativeAN.scheduleAlarm = async (details) => {
 	if (!details.fire_date || (details.fire_date && details.fire_date === '')) {
@@ -54,9 +61,9 @@ ReactNativeAN.scheduleAlarm = async (details) => {
 
 	const data = {
 		...details,
-		has_button: details.has_button || false,
-		vibrate: details.vibrate || true,
-		play_sound: details.play_sound || true,
+		has_button: ifUndefined(details.has_button, false),
+		vibrate: ifUndefined(details.vibrate, true),
+		play_sound: ifUndefined(details.play_sound, true),
 		schedule_type: details.schedule_type || 'once',
 		repeat_interval: details.repeat_interval || 'hourly',
 		interval_value: details.interval_value || 1,
@@ -72,9 +79,9 @@ ReactNativeAN.scheduleAlarm = async (details) => {
 ReactNativeAN.sendNotification = (details) => {
 	const data = {
 		...details,
-		has_button: false,
-		vibrate: details.vibrate || true,
-		play_sound: details.play_sound || true,
+		has_button: ifUndefined(details.has_button, false),
+		vibrate: ifUndefined(details.vibrate, true),
+		play_sound: ifUndefined(details.play_sound, true),
 		schedule_type: details.schedule_type || 'once',
 		volume: details.volume || 0.5,
 		sound_name: details.sound_name || '',
@@ -123,6 +130,9 @@ ReactNativeAN.getScheduledAlarms = async () => {
 
 // ios request permission
 ReactNativeAN.requestPermissions = async (permissions) => {
+	if (Platform.OS !== 'ios') {
+		return;
+	}
 	let requestedPermissions = {
 		alert: true,
 		badge: true,
@@ -142,6 +152,9 @@ ReactNativeAN.requestPermissions = async (permissions) => {
 
 // ios check permission
 ReactNativeAN.checkPermissions = (callback) => {
+	if (Platform.OS !== 'ios') {
+		return callback([]);
+	}
 	RNAlarmNotification.checkPermissions(callback);
 };
 
